@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title></title>
+    <style>
+      .con {
+        position: relative;
+      }
+      canvas {
+        position: absolute;
+        top: 10px;
+        left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="con">
+      <input
+        type="button"
+        value="清除画布"
+        class="clear fun"
+        onclick="clearb()"
+      />
+      <input
+        type="button"
+        value="保存成图片"
+        class="clear fun"
+        onclick="convertCanvasToImage(canvas)"
+      />
+      <canvas
+        id="canvas-img"
+        width="1024"
+        height="768"
+        style="border: 1px solid #ccc; margin: 20px auto; display: block"
+      >
+        当前浏览器不支持canvas
+        <!-- 如果浏览器支持canvas，则canvas标签里的内容不会显示出来 -->
+      </canvas>
+      <canvas
+        id="canvas"
+        width="1024"
+        height="768"
+        style="border: 1px solid #ccc; margin: 20px auto; display: block"
+      >
+        当前浏览器不支持canvas
+        <!-- 如果浏览器支持canvas，则canvas标签里的内容不会显示出来 -->
+      </canvas>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+    <script>
+      //获取canvas元素
+      var canvasImg = document.getElementById('canvas-img');
+      //创建image对象
+      var imgObj = new Image();
+      imgObj.src =
+        'https://www.google.com.hk/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
+      //待图片加载完后，将其显示在canvas上
+      imgObj.onload = function () {
+        var cvsImg = canvasImg.getContext('2d');
+        cvsImg.drawImage(this, 0, 0); //this即是imgObj,保持图片的原始大小：470*480
+        //cvs.drawImage(this, 0, 0,1024,768);//改变图片的大小到1024*768
+      };
+    </script>
+    <script type="text/javascript">
+      var canvas = document.getElementById('canvas');
+      var cvs = canvas.getContext('2d');
+      cvs.lineWidth = 10; //设置笔的粗细
+      cvs.strokeStyle = '#f00'; //设置颜色
+      var drawing = false;
+      window.onload = function () {
+        var penWeight = 0; //画笔粗细
+        var penColor = ''; //画笔颜色
+        canvas.onmousedown = function (e) {
+          /*找到鼠标（画笔）的坐标*/
+          var start_x =
+            e.clientX - canvas.offsetLeft + document.body.scrollLeft;
+          var start_y = e.clientY - canvas.offsetTop + document.body.scrollTop;
+          cvs.beginPath(); //开始本次绘画
+          cvs.moveTo(start_x, start_y); //画笔起始点
+          /*设置画笔属性*/
+          cvs.lineCap = 'round';
+          cvs.lineJoin = 'round';
+          cvs.strokeStyle = penColor; //画笔颜色
+          cvs.lineWidth = penWeight; //画笔粗细
+          canvas.onmousemove = function (e) {
+            /*找到鼠标（画笔）的坐标*/
+            var move_x =
+              e.clientX - canvas.offsetLeft + document.body.scrollLeft;
+            var move_y = e.clientY - canvas.offsetTop + document.body.scrollTop;
+            cvs.lineTo(move_x, move_y); //根据鼠标路径绘画
+            cvs.stroke(); //立即渲染
+          };
+          canvas.onmouseup = function (e) {
+            cvs.closePath(); //结束本次绘画
+            canvas.onmousemove = null;
+            canvas.onmouseup = null;
+          };
+          canvas.onmouseleave = function () {
+            cvs.closePath();
+            canvas.onmousemove = null;
+            canvas.onmouseup = null;
+          };
+        };
+      }; //清除画布功能
+      function clearb() {
+        cvs.clearRect(0, 0, 800, 800);
+      }
+
+      function convertCanvasToImage(canvas) {
+        var image = new Image();
+        image.src = canvas.toDataURL('image/png');
+        console.log({ image });
+        return image;
+      }
+    </script>
+  </body>
+</html>
