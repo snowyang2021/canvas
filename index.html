@@ -51,18 +51,31 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
     <script>
+      let imgWidth = 1024;
+      let imgHeight = 768;
       var imageLoader = document.getElementById('upload');
       imageLoader.addEventListener('change', handleImage, false);
+
       var canvasImg = document.getElementById('canvas-img');
       var ctxImg = canvasImg.getContext('2d');
+
+      var canvas = document.getElementById('canvas');
+      var cvs = canvas.getContext('2d');
 
       function handleImage(e) {
         var reader = new FileReader();
         reader.onload = function (event) {
           var img = new Image();
           img.onload = function () {
-            // canvasImg.width = img.width;
-            // canvasImg.height = img.height;
+            canvasImg.width = img.width;
+            canvasImg.height = img.height;
+
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            imgWidth = img.width;
+            imgHeight = img.height;
+
             ctxImg.drawImage(img, 0, 0);
           };
           img.src = event.target.result;
@@ -70,33 +83,6 @@
         reader.readAsDataURL(e.target.files[0]);
       }
 
-      // function drawToCanvas(imgData) {
-      //   var canvasImg = document.querySelector('#canvas-img');
-      //   var cvsImg = canvasImg.getContext('2d');
-      //   var img = new Image();
-      //   img.src = imgData;
-      //   img.onload = function () {
-      //     //必须onload之后再画
-      //     ctx.drawImage(img, 0, 0, 300, 400);
-      //     strDataURI = cvs.toDataURL(); //获取canvas base64数据
-      //   };
-      // }
-      // //获取canvas元素
-      // var canvasImg = document.getElementById('canvas-img');
-      // //创建image对象
-      // var imgObj = new Image();
-      // imgObj.src =
-      //   'https://www.google.com.hk/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
-      // //待图片加载完后，将其显示在canvas上
-      // imgObj.onload = function () {
-      //   var cvsImg = canvasImg.getContext('2d');
-      //   cvsImg.drawImage(this, 0, 0); //this即是imgObj,保持图片的原始大小：470*480
-      //   //cvs.drawImage(this, 0, 0,1024,768);//改变图片的大小到1024*768
-      // };
-    </script>
-    <script type="text/javascript">
-      var canvas = document.getElementById('canvas');
-      var cvs = canvas.getContext('2d');
       cvs.lineWidth = 10; //设置笔的粗细
       cvs.strokeStyle = '#f00'; //设置颜色
       var drawing = false;
@@ -136,7 +122,7 @@
         };
       }; //清除画布功能
       function clearb() {
-        cvs.clearRect(0, 0, 1024, 768);
+        cvs.clearRect(0, 0, imgWidth, imgHeight);
       }
 
       function convertCanvasToImage(canvas) {
@@ -145,8 +131,56 @@
         image.src = canvasImg.toDataURL('image/png');
         image2.src = canvas.toDataURL('image/png');
         console.log({ image, image2 });
+
+        // 上传图片
+        var formData = new FormData();
+        var fileField = document.querySelector("input[type='file']");
+
+        formData.append('canvas', canvas.toDataURL('image/png'));
+        formData.append('canvasImg', fileField.files[0]);
+
+        fetch('https://example.com/profile/avatar', {
+          method: 'PUT',
+          body: formData,
+        })
+          .then((response) => response.json())
+          .catch((error) => console.error('Error:', error))
+          .then((response) => console.log('Success:', response));
+        // fetch('http://example.com/movies.json')
+        //   .then(function (response) {
+        //     console.log({ response });
+        //     return response.json();
+        //   })
+        //   .then(function (myJson) {
+        //     console.log(myJson);
+        //   });
         return { image, image2 };
       }
+
+      // function drawToCanvas(imgData) {
+      //   var canvasImg = document.querySelector('#canvas-img');
+      //   var cvsImg = canvasImg.getContext('2d');
+      //   var img = new Image();
+      //   img.src = imgData;
+      //   img.onload = function () {
+      //     //必须onload之后再画
+      //     ctx.drawImage(img, 0, 0, 300, 400);
+      //     strDataURI = cvs.toDataURL(); //获取canvas base64数据
+      //   };
+      // }
+      // //获取canvas元素
+      // var canvasImg = document.getElementById('canvas-img');
+      // //创建image对象
+      // var imgObj = new Image();
+      // imgObj.src =
+      //   'https://www.google.com.hk/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
+      // //待图片加载完后，将其显示在canvas上
+      // imgObj.onload = function () {
+      //   var cvsImg = canvasImg.getContext('2d');
+      //   cvsImg.drawImage(this, 0, 0); //this即是imgObj,保持图片的原始大小：470*480
+      //   //cvs.drawImage(this, 0, 0,1024,768);//改变图片的大小到1024*768
+      // };
     </script>
+    <script type="text/javascript"></script>
   </body>
 </html>
