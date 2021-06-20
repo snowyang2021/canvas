@@ -132,29 +132,60 @@
         image2.src = canvas.toDataURL('image/png');
         console.log({ image, image2 });
 
-        // 上传图片
-        var formData = new FormData();
-        var fileField = document.querySelector("input[type='file']");
+        var url = 'https://example.com/profile';
+        var data = {
+          canvas: canvas.toDataURL('image/png'),
+          canvasImg: canvasImg.toDataURL('image/png'),
+        };
 
-        formData.append('canvas', canvas.toDataURL('image/png'));
-        formData.append('canvasImg', fileField.files[0]);
-
-        fetch('https://example.com/profile/avatar', {
-          method: 'PUT',
-          body: formData,
+        fetch(url, {
+          method: 'POST', // or 'PUT'
+          body: JSON.stringify(data), // data can be `string` or {object}!
+          headers: new Headers({
+            'Content-Type': 'application/json',
+          }),
         })
-          .then((response) => response.json())
+          .then((res) => res.json())
           .catch((error) => console.error('Error:', error))
           .then((response) => console.log('Success:', response));
-        // fetch('http://example.com/movies.json')
-        //   .then(function (response) {
-        //     console.log({ response });
-        //     return response.json();
-        //   })
-        //   .then(function (myJson) {
-        //     console.log(myJson);
-        //   });
+
+        // 上传图片
+        // var formData = new FormData();
+        // var fileField = document.querySelector("input[type='file']");
+
+        // formData.append('canvas', canvas.toDataURL('image/png'));
+        // formData.append('canvasImg', canvasImg.toDataURL('image/png'));
+        // formData.append(
+        //   'canvas',
+        //   dataURLtoFile(canvas.toDataURL('image/png'), 'canvas图片')
+        // );
+        // formData.append('canvasImg', fileField.files[0]);
+
+        // var url = 'https://example.com/profile/avatar';
+
+        // fetch(url, {
+        //   method: 'PUT',
+        //   body: formData,
+        // })
+        //   .then((response) => response.json())
+        //   .catch((error) => console.error('Error:', error))
+        //   .then((response) => console.log('Success:', response));
         return { image, image2 };
+      }
+
+      // base64转 image file 对象
+      function dataURLtoFile(dataurl, filename) {
+        var arr = dataurl.split(','),
+          mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]),
+          n = bstr.length,
+          u8arr = new Uint8Array(n);
+
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+
+        return new File([u8arr], filename, { type: mime });
       }
 
       // function drawToCanvas(imgData) {
